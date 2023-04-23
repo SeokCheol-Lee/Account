@@ -17,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -76,6 +78,29 @@ class AccountControllerTest {
                 .andExpect(jsonPath("$.userId").value(1))
                 .andExpect(jsonPath("$.accountNumber").value("1234567890"))
                 .andDo(print());
+    }
+
+    @Test
+    void successGetAccountsByUserId() throws Exception {
+        List<AccountDto> accountDtos =
+                Arrays.asList(AccountDto.builder()
+                        .accountNumber("1234567890")
+                        .balance(1000L).build(),
+                        AccountDto.builder()
+                                .accountNumber("1234567891")
+                                .balance(2000L).build(),
+                        AccountDto.builder()
+                                .accountNumber("1234567892")
+                                .balance(3000L).build()
+                        );
+
+        given(accountService.getAccountsByUserId(anyLong()))
+                .willReturn(accountDtos);
+
+        mockMvc.perform(get("/account?user_id=1"))
+                .andDo(print())
+                .andExpect(jsonPath("$[0].accountNumber").value("1234567890"))
+                .andExpect(jsonPath("$[0].balance").value(1000));
     }
 
     @Test

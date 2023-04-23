@@ -16,6 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -236,6 +238,52 @@ class AccountServiceTest {
                 () -> accountService.deleteAccount(1L, "1234567890"));
 
         assertEquals(ErrorCode.ACCOUNT_ALREADY_UNREGISTERED, accountException.getErrorCode());
+    }
+
+    @Test
+    void successGetAccountsByUserId(){
+        AccountUser pobi = AccountUser.builder()
+                .id(12L)
+                .name("Pobi").build();
+        List<Account> accounts = Arrays.asList(
+                Account.builder()
+                        .accountUser(pobi)
+                        .accountNumber("1234567890")
+                        .balance(1000L)
+                        .build(),
+                Account.builder()
+                        .accountUser(pobi)
+                        .accountNumber("1234567891")
+                        .balance(2000L)
+                        .build(),
+                Account.builder()
+                        .accountUser(pobi)
+                        .accountNumber("1234567892")
+                        .balance(3000L)
+                        .build()
+        );
+
+        given(accountUserRepository.findById(anyLong()))
+                .willReturn(Optional.of(pobi));
+        given(accountRepository.findByAccountUser(any()))
+                .willReturn(accounts);
+
+        List<AccountDto> accountDtos = accountService.getAccountsByUserId(1L);
+
+        assertEquals(3, accountDtos.size());
+        assertEquals("1234567890",accountDtos.get(0).getAccountNumber());
+        assertEquals(1000,accountDtos.get(0).getBalance());
+    }
+
+    @Test
+    void failedToGetAccounts(){
+        given(accountUserRepository.findById(anyLong()))
+                .willReturn(Optional.empty());
+
+        AccountException accountException = assertThrows(AccountException.class,
+                () -> accountService.getAccountsByUserId(1L));
+
+        assertEquals(ErrorCode.USER_NOT_FOUND, accountException.getErrorCode());
     }
 
 }
