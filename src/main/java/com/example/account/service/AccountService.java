@@ -61,7 +61,7 @@ public class AccountService {
     }
 
     private void validateCreateAccount(AccountUser accountUser){
-        if(accountRepository.countAccountByUser(accountUser) >= 10){
+        if(accountRepository.countByAccountUser(accountUser) >= 10){
             throw new AccountException(ErrorCode.MAX_ACCOUNT_PER_USER_10);
         }
     }
