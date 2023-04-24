@@ -36,8 +36,8 @@ public class GlobalExceptionHandler {
                 ErrorCode.INVALID_REQUEST.getDescription());
     }
 
-    @ExceptionHandler(AccountException.class)
-    public ErrorResponse handleException(AccountException e){
+    @ExceptionHandler(Exception.class)
+    public ErrorResponse handleException(Exception e){
         log.error("Exception is occurred",e);
 
         return new ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR,
